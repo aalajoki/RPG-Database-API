@@ -11,8 +11,19 @@ $options = [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
+
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+} 
+catch (\PDOException $e) {
+    //throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    $error = array(
+        "code" => 500, 
+        "body" => "Unable to connect to the database."
+    );
+    http_response_code(500);
+    $json = json_encode($error);
+    
+    echo $json;
+    die();
 }
