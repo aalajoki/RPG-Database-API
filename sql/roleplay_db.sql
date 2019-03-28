@@ -1,62 +1,69 @@
-drop database if exists roleplay_db;
-create database roleplay_db;
+DROP DATABASE IF EXISTS roleplay_db;
+CREATE DATABASE roleplay_db;
 
 use roleplay_db;
 
 
-create table Character_Class
+CREATE TABLE Character_Class
 (
-    id  int primary key auto_increment,
-    class VARCHAR(20) not null unique
+    id INT AUTO_INCREMENT,
+    class VARCHAR(20) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
-create table Character_Race 
+CREATE TABLE Character_Race 
 (
-    id int primary key auto_increment,
-    race varchar(20) not null unique
+    id INT AUTO_INCREMENT,
+    race VARCHAR(20) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
-create table Guild_Type 
+CREATE TABLE Guild_Type 
 (
-    id int primary key auto_increment,
-    type varchar(3) not null
+    id INT AUTO_INCREMENT,
+    type VARCHAR(3) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table Guild_Rank 
+CREATE TABLE Guild_Rank 
 (
-    id int primary key auto_increment,
-    rank varchar(20) not null unique
+    id INT NOT NULL AUTO_INCREMENT,
+    rank VARCHAR(20) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 
 
-create table Player_Character
+CREATE TABLE Player_Character
 (
-    id int primary key auto_increment,
-    name varchar(30) not null unique,
-    char_class int not null,
-    foreign key (char_class) references Character_Class(id),
-    char_race int not null,
-    foreign key (char_race) references Character_Race(id),
-    level int not null default 1
+    id INT AUTO_INCREMENT,
+    name VARCHAR(30) NOT NULL UNIQUE,
+    char_class INT NOT NULL,
+    FOREIGN KEY (char_class) REFERENCES Character_Class(id),
+    char_race INT NOT NULL,
+    FOREIGN KEY (char_race) REFERENCES Character_Race(id),
+    level INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (id)
 );
 
-create table Guild
+CREATE TABLE Guild
 (
-    id int primary key auto_increment,
-    name varchar(20) not null unique,
-    guild_type int not null,
-    foreign key (guild_type) references Guild_Type(id),
-    description varchar(100)
+    id INT AUTO_INCREMENT,
+    name VARCHAR(20) NOT NULL UNIQUE,
+    guild_type INT NOT NULL,
+    FOREIGN KEY (guild_type) REFERENCES Guild_Type(id),
+    description VARCHAR(100),
+    PRIMARY KEY (id)
 );
 
-create table Guild_Membership
+CREATE TABLE Guild_Membership
 (
-    guild_id int not null,
-    foreign key (guild_id) references Guild(id),
-    char_id int not null unique,
-    foreign key (char_id) references Player_Character(id),
-    char_rank int not null default 1,
-    foreign key (char_rank) references Guild_Rank(id),
-    joined timestamp default current_timestamp
+    guild_id INT AUTO_INCREMENT,
+    FOREIGN KEY (guild_id) REFERENCES Guild(id),
+    char_id INT NOT NULL UNIQUE,
+    FOREIGN KEY (char_id) REFERENCES Player_Character(id),
+    char_rank INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (char_rank) REFERENCES Guild_Rank(id),
+    joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, char_id)
 );

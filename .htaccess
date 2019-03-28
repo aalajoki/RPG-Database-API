@@ -2,7 +2,16 @@
 Options -Indexes
 
 RewriteEngine On
-# Handle requesting a specific character e.g. "api/characters/3"
+
+# Handle requesting a specific character's info e.g. "api/characters/3"
 RewriteRule    ^api/characters/([\S]+)/?$    api/characters/read_one.php?id=$1    [NC,END]
-# Handle requesting all characters e.g. "api/characters/"
+# Handle requesting all characters' info e.g. "api/characters/"
 RewriteRule    ^api/characters/    api/characters/read_all.php    [NC,END]
+
+
+# Handle requesting a specific guild's memberlist e.g. "api/guilds/1/members"
+RewriteRule    ^api/guilds/([\S]+)/members/?$    api/guilds/read_memberlist.php?id=$1    [NC,END]
+# Handle requesting a specific guild's info e.g. "api/guilds/1"
+RewriteRule    ^api/guilds/([\S]+)/?$    api/guilds/read_one.php?id=$1    [NC,END]
+# Handle requesting all guilds' info e.g. "api/guilds/"
+RewriteRule    ^api/guilds/    api/guilds/read_all.php    [NC,END]
