@@ -1,7 +1,7 @@
 <?php
 header("Content-Type:application/json");
 
-require_once('../../database.php'); 
+require_once('../database.php'); 
 
 
 $statement = $pdo->prepare(
@@ -14,7 +14,6 @@ ON a.guild_type = b.id"
 $statement->execute();
 $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-
 if (!$results) {
     $error = array(
         "status" => 404, 
@@ -22,13 +21,10 @@ if (!$results) {
     );
     http_response_code(404);
     $json = json_encode($error);
-    
-    echo $json;
-    die();
 }
 else {
     $json = json_encode($results);
-    
-    echo $json;
-    die();
 }
+
+echo $json;
+die();

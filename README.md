@@ -1,2 +1,2 @@
 # RPG-Database-API
-A simple SQL REST API written in PHP.
+A simple REST API written in PHP.
