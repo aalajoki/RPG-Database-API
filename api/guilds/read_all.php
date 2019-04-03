@@ -1,14 +1,20 @@
 <?php
-header("Content-Type:application/json");
 
-require_once('../database.php'); 
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header('Cache-Control: max-age=3600');
+
+require_once('../config/database.php'); 
 
 
 $statement = $pdo->prepare(
-"SELECT a.id, a.name, b.type, a.description
-FROM guild a
-LEFT JOIN guild_type b
-ON a.guild_type = b.id"
+    "SELECT a.id, a.name, b.type, a.description
+    FROM guild a
+    LEFT JOIN guild_type b
+    ON a.guild_type = b.id"
 );
 
 $statement->execute();

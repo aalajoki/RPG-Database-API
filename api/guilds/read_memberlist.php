@@ -1,7 +1,13 @@
 <?php
-header("Content-Type:application/json");
 
-require_once('../database.php'); 
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header('Cache-Control: max-age=3600');
+
+require_once('../config/database.php'); 
 
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -16,14 +22,13 @@ if ($id == FALSE || $id == NULL) {
 }
 else {
     $statement = $pdo->prepare(
-    "SELECT b.id, b.name, c.rank, a.joined
-    FROM guild_membership a
-    LEFT JOIN player_character b
-    ON a.char_id = b.id
-    LEFT JOIN guild_rank c
-    ON a.char_rank = c.id
-    WHERE a.guild_id=?
-    "
+        "SELECT b.id, b.name, c.rank, a.joined
+        FROM guild_membership a
+        LEFT JOIN player_character b
+        ON a.char_id = b.id
+        LEFT JOIN guild_rank c
+        ON a.char_rank = c.id
+        WHERE a.guild_id=?"
     );
 
     $statement->bindParam(1, $id, PDO::PARAM_INT);
