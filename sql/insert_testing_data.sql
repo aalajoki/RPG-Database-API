@@ -29,13 +29,13 @@ VALUES
 
 
 
--- Player data
-INSERT INTO Player_Character (name, char_class, char_race, level)  
+-- Player data - requires 3 players to be created first using the signup form in index.html
+INSERT INTO Player_Character (player_id, name, char_class, char_race, level)  
 VALUES 
-("Rob Johnson", 1, 1, 21), 
-("Long-Ears", 3, 3, 5), 
-("Ironpants", 1, 2, 1),
-("Sneaky", 2, 3, 24);
+(1, "Rob Johnson", 1, 1, 21), 
+(2, "Long-Ears", 3, 3, 5), 
+(2, "Ironpants", 1, 2, 1),
+(3, "Sneaky", 2, 3, 24);
 
 INSERT INTO Guild (name, guild_type, description)  
 VALUES 

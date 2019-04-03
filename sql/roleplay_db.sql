@@ -47,11 +47,13 @@ CREATE TABLE Player
 CREATE TABLE Player_Character
 (
     id INT AUTO_INCREMENT,
+    player_id INT NOT NULL,
+    FOREIGN KEY (player_id) REFERENCES Player(id),
     name VARCHAR(30) NOT NULL UNIQUE,
-    char_class INT NOT NULL,
-    FOREIGN KEY (char_class) REFERENCES Character_Class(id),
     char_race INT NOT NULL,
     FOREIGN KEY (char_race) REFERENCES Character_Race(id),
+    char_class INT NOT NULL,
+    FOREIGN KEY (char_class) REFERENCES Character_Class(id),
     level INT NOT NULL DEFAULT 1,
     PRIMARY KEY (id)
 );

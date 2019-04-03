@@ -1,7 +1,7 @@
 # Prevent access to non-indexed directories
 Options -Indexes
 
-RewriteEngine On
+# RewriteEngine On
 
 # Handle requesting a specific character's info e.g. "api/characters/3"
 RewriteRule    ^api/characters/([\S]+)/?$    api/characters/read_one.php?id=$1    [NC,END]

@@ -20,8 +20,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" href="#" id='home'>Home</a>
-            <a class="nav-item nav-link" href="#" id='update_account'>Account</a>
+            <!-- <a class="nav-item nav-link" href="#" id='home'>Home</a> -->
+            <a class="nav-item nav-link" href="#" id='create_character'>Create a character</a>
+            <a class="nav-item nav-link" href="#" id='manage_characters'>Manage your characters</a>
             <a class="nav-item nav-link" href="#" id='logout'>Logout</a>
             <a class="nav-item nav-link" href="#" id='login'>Login</a>
             <a class="nav-item nav-link" href="#" id='sign_up'>Sign Up</a>
@@ -132,9 +133,10 @@ $(document).ready(function(){
                 // store jwt to cookie
                 setCookie("jwt", result.jwt, 1);
                 // show home page & tell the user it was a successful login
-                showHomePage();
+                //showHomePage();
+                showManageCharacterForm();
+                showLoggedInMenu();
                 $('#response').html("<div class='alert alert-success'>Successful login.</div>");
-
             },
             error: function(xhr, resp, text){
                 // on error, tell the user login has failed & empty the input boxes
@@ -148,47 +150,46 @@ $(document).ready(function(){
     });
 
     // show home page
-    $(document).on('click', '#home', function(){
-        showHomePage();
-        clearResponse();
-    });
+    //$(document).on('click', '#home', function(){
+    //    showHomePage();
+    //    clearResponse();
+    //});
  
     // show update account form
-    $(document).on('click', '#update_account', function(){
-        showUpdateAccountForm();
+    $(document).on('click', '#create_character', function(){
+        showCreateCharacterForm();
+    });
+    
+    $(document).on('click', '#manage_characters', function(){
+        showManageCharacterForm();
     });
 
-    // trigger when 'update account' form is submitted
-    $(document).on('submit', '#update_account_form', function(){
+    // Trigger when 'create character' form is submitted
+    $(document).on('submit', '#create_character_form', function(){
 
-        // handle for update_account_form
-        var update_account_form=$(this);
+        // handle for create_character_form
+        var create_character_form = $(this);
 
         // validate jwt to verify access
         var jwt = getCookie('jwt');
 
         // get form data
-        var update_account_form_obj = update_account_form.serializeObject()
+        var create_character_form_obj = create_character_form.serializeObject()
 
         // add jwt on the object
-        update_account_form_obj.jwt = jwt;
+        create_character_form_obj.jwt = jwt;
 
         // convert object to json string
-        var form_data=JSON.stringify(update_account_form_obj);
+        var form_data = JSON.stringify(create_character_form_obj);
 
         // submit form data to api
         $.ajax({
-            url: "api/update_user.php",
+            url: "api/characters/create_character.php",
             type : "POST",
-            contentType : 'application/json',
+            contentType : "application/json",
             data : form_data,
             success : function(result) {
-
-                // tell the user account was updated
-                $('#response').html("<div class='alert alert-success'>Account was updated.</div>");
-
-                // Store JWT to cookie
-                setCookie("jwt", result.jwt, 1);
+                $("#response").html("<div class='alert alert-success'>Character was created.</div>");
             },
             
             // Error message
@@ -260,36 +261,36 @@ $(document).ready(function(){
     function showLoggedOutMenu(){
         // Show/hide navbar buttons
         $("#login, #sign_up").show();
-        $("#logout").hide();
+        $("#logout, #create_character, #manage_characters").hide();
     }
 
     // Show home page
-    function showHomePage(){
+    //function showHomePage(){
 
         // Validate JWT
-        var jwt = getCookie('jwt');
+        //var jwt = getCookie('jwt');
 
-        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+        //$.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
             // If valid, show homepage
-            var html = `
-                <div class="card">
-                    <div class="card-header">Welcome to Home!</div>
-                    <div class="card-body">
-                        <h5 class="card-title">You are logged in.</h5>
-                        <p class="card-text">You won't be able to access the home and account pages if you are not logged in.</p>
-                    </div>
-                </div>
-                `;
+            //var html = `
+            //    <div class="card">
+            //        <div class="card-header">Welcome to Home!</div>
+            //        <div class="card-body">
+            //            <h5 class="card-title">You are logged in.</h5>
+            //            <p class="card-text">You won't be able to access the home and account pages if you are not logged in.</p>
+            //        </div>
+            //    </div>
+            //    `;
 
-            $('#content').html(html);
-            showLoggedInMenu();
-        })
+            //$('#content').html(html);
+            //showLoggedInMenu();
+        //})
         // show login page on error
-        .fail(function(result){
-            showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>Please login to access the home page.</div>");
-        });
-    }
+        //.fail(function(result){
+        //    showLoginPage();
+        //    $('#response').html("<div class='alert alert-danger'>Please login to access the home page.</div>");
+        //});
+    //}
 
     // get or read cookie
     function getCookie(cname){
@@ -313,49 +314,106 @@ $(document).ready(function(){
     function showLoggedInMenu(){
         // hide login and sign up from navbar & show logout button
         $("#login, #sign_up").hide();
-        $("#logout").show();
+        $("#logout, #create_character, #manage_characters").show();
     }
 
-    function showUpdateAccountForm(){
+    function showCreateCharacterForm(){
         // validate jwt to verify access
         var jwt = getCookie('jwt');
         $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
 
             // if response is valid, put user details in the form
             var html = `
-                    <h2>Update Account</h2>
-                    <form id='update_account_form'>
+                    <h2>Create Character</h2>
+                    <form id='create_character_form'>
                         <div class="form-group">
-                            <label for="last_name">Last name</label>
-                            <input type="text" class="form-control" name="username" id="username" required value="` + result.data.username + `" />
+                            <label for="name">Character name</label>
+                            <input type="text" class="form-control" name="name" id="name" required value="" />
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" name="email" id="email" required value="` + result.data.email + `" />
+                            <label for="char_race">Character race</label>
+                            <select name="char_race">
+                                <option value="1">Human</option>
+                                <option value="2">Dwarf</option>
+                                <option value="3">Elf</option>
+                            </select>
                         </div>
-
+        
                         <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" name="password" id="password" />
+                            <label for="char_class">Character class</label>
+                            <select name="char_class">
+                                <option value="1">Warrior</option>
+                                <option value="2">Rogue</option>
+                                <option value="3">Mage</option>
+                            </select>
                         </div>
 
-                        <button type='submit' class='btn btn-primary'>
-                            Save Changes
-                        </button>
+                        <button type='submit' class='btn btn-primary'>Create</button>
                     </form>
                 `;
 
             clearResponse();
             $('#content').html(html);
         })
-
+//<input type="email" class="form-control" name="email" id="email" required value="` + result.data.email + `" />
         // on error/fail, tell the user he needs to login to show the account page
         .fail(function(result){
             showLoginPage();
             $('#response').html("<div class='alert alert-danger'>Please login to access the account page.</div>");
         });
     }
+    
+    function showManageCharacterForm(){
+        // validate jwt to verify access
+        var jwt = getCookie('jwt');
+        $('#content').empty();
+        // If the user is logged in, search and show the user's characters
+        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+            $.post("api/characters/read_characters.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+                
+                $('#content').append("<h1>Your characters</h1><table>");
+                $('#content').append("<tr>");
+                    $('#content').append("<td>ID</td>");
+                    $('#content').append("<td>Name</td>");
+                    $('#content').append("<td>Race</td>");
+                    $('#content').append("<td>Class</td>");
+                    $('#content').append("<td>Level</td>");
+                    $('#content').append("<td>Guild</td>");
+                    //$('#content').append("<td>Leave guild</td>");
+                $('#content').append("</tr>");
+                $(jQuery.parseJSON(JSON.stringify(result.data))).each(function() {
+                    $('#content').append("<tr>");
+                    $('#content').append("<td>" + this.id + "</td>");
+                    $('#content').append("<td>" + this.name + "</td>");
+                    $('#content').append("<td>" + this.race + "</td>");
+                    $('#content').append("<td>" + this.class + "</td>");
+                    $('#content').append("<td>" + this.level + "</td>");
+                    $('#content').append("<td>" + this.guild + "</td>");
+                    if (this.guild != null) {
+                        $('#content').append("<td>Leave guild link here</td>");
+                    }
+                    //else {
+                    //    $('#content').append("<td></td>");
+                    //}
+                    $('#content').append("</tr>");
+               });
+               $('#content').append("</table>");
+                
+                clearResponse();
+            })
+            .fail(function(result){
+                showLoginPage();
+                $('#response').html("<div class='alert alert-danger'>Please login to access the account page.</div>");
+            });
+        })
+        .fail(function(result){
+            showLoginPage();
+            $('#response').html("<div class='alert alert-danger'>Please login to access the account page.</div>");
+        });
+    }
+    
+    //<input type="email" class="form-control" name="email" id="email" required value="` + result.data.email + `" />
 
     // function to make form values to json format
     $.fn.serializeObject = function(){
@@ -374,6 +432,7 @@ $(document).ready(function(){
         });
         return o;
     };
+    showLoginPage();
 });
 </script>
 
