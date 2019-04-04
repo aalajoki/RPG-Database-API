@@ -45,13 +45,18 @@ if($jwt){
 
         echo json_encode(array(
             "status" => 401,
-            "body" => "Access denied.",
-            "error" => $e->getMessage()
+            "body" => "Access denied. Token is invalid."
+            //"error" => $e->getMessage()
         ));
     }
 }
 // JWT is empty
-else{
+else {
     http_response_code(401);
-    echo json_encode(array("message" => "Access denied."));
+
+        echo json_encode(array(
+            "status" => 401,
+            "body" => "Access denied. Please log in."
+            //"error" => $e->getMessage()
+        ));
 }

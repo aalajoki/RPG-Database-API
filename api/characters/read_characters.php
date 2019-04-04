@@ -2,10 +2,10 @@
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
- 
+header('Cache-Control: max-age=3600');
 
 include_once '../config/core.php';
 
@@ -15,7 +15,6 @@ include_once '../libs/php-jwt-master/src/SignatureInvalidException.php';
 include_once '../libs/php-jwt-master/src/JWT.php';
 use \Firebase\JWT\JWT;
  
-// files needed to connect to database
 require_once('../config/database.php'); 
 include_once '../players/player.php';
 
@@ -67,19 +66,20 @@ if ($jwt) {
     }
     // JWT is invalid
     catch (Exception $e){
-        // set response code
+
         http_response_code(401);
-        // show error message
         echo json_encode(array(
             "status" => 401,
-            "message" => "Access denied.",
-            "error" => $e->getMessage()
+            "body" => "Access denied. Token is invalid.",
+            //"error" => $e->getMessage()
         ));
     }
 }
 // If JWT is empty
 else {
-
-    http_response_code(401);
-    echo json_encode(array("message" => "Access denied."));
+    echo json_encode(array(
+        "status" => 401,
+        "body" => "Access denied. Please log in."
+        //"error" => $e->getMessage()
+    ));
 }

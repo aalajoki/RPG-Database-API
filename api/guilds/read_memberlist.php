@@ -28,12 +28,17 @@ else {
         ON a.char_id = b.id
         LEFT JOIN guild_rank c
         ON a.char_rank = c.id
-        WHERE a.guild_id=?"
+        WHERE a.guild_id = ?"
     );
 
-    $statement->bindParam(1, $id, PDO::PARAM_INT);
-    $statement->execute();
-    $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $statement->bindParam(1, $id, PDO::PARAM_INT);
+        $statement->execute();
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $e) {
+        echo json_encode($e);
+    }
 
 
     if (!$results) {
@@ -45,9 +50,11 @@ else {
         $json = json_encode($error);
     }
     else {
-        $json = json_encode($results);
+        http_response_code(200);
+        echo json_encode(array(
+            "status" => 200,
+            "body" => "Memberlist query successful.",
+            "data" => $results
+        ));
     }
 }
-
-echo $json;
-die();
