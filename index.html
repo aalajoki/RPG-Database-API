@@ -5,7 +5,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
  
-        <title>Rest API Authentication Example</title>
+        <title>Alajoki REST API</title>
  
         <!-- CSS links will be here -->
  
@@ -23,6 +23,7 @@
             <!-- <a class="nav-item nav-link" href="#" id='home'>Home</a> -->
             <a class="nav-item nav-link" href="#" id='create_character'>Create a character</a>
             <a class="nav-item nav-link" href="#" id='manage_characters'>Manage your characters</a>
+            <a class="nav-item nav-link" href="#" id='create_guild'>Create a guild</a>
             <a class="nav-item nav-link" href="#" id='manage_guilds'>Manage your guilds</a>
             <a class="nav-item nav-link" href="#" id='logout'>Logout</a>
             <a class="nav-item nav-link" href="#" id='login'>Login</a>
@@ -99,35 +100,39 @@ $(document).ready(function()
             type : "POST",
             contentType : 'application/json',
             data : form_data,
+            
             success : function(result) {
-                // if response is a success, tell the user it was a successful sign up & empty the input boxes
-                $('#response').html("<div class='alert alert-success'>" + xhr.responseJSON.body + "</div>");
+                $('#response').html("<div class='alert alert-success'>" + result.body + "</div>");
                 sign_up_form.find('input').val('');
             },
-            error: function(xhr, resp, text){
-                // Error message
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+            error: function(result) {
+                console.log(result);
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             }
         });
 
         return false;
     });
  
-    // show login form
+    // Show login form
     $(document).on('click', '#login', function()
     {
         showLoginPage();
     });
+    
+    $(document).on('click', '#create_guild', function()
+    {
+        showCreateGuildForm();
+    });
  
-    // trigger when login form is submitted
+    // Trigger when login form is submitted
     $(document).on('submit', '#login_form', function()
     {
-
-        // get form data
+        // Get form data
         var login_form=$(this);
         var form_data=JSON.stringify(login_form.serializeObject());
 
-        // submit form data to api
+        // Submit form data to API
         $.ajax({
             url: "api/players/login.php",
             type : "POST",
@@ -135,18 +140,15 @@ $(document).ready(function()
             data : form_data,
             success : function(result){
 
-                // store jwt to cookie
+                // Store JWT to cookie
                 setCookie("jwt", result.jwt, 1);
-                // show home page & tell the user it was a successful login
                 //showHomePage();
                 showManageCharacterForm();
                 showLoggedInMenu();
-                $('#response').html("<div class='alert alert-success'>" + xhr.responseJSON.body + "</div>");
+                $('#response').html("<div class='alert alert-success'>" + result.body + "</div>");
             },
-            error: function(xhr, resp, text){
-                // on error, tell the user login has failed & empty the input boxes
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
-                console.log(xhr);
+            error: function(result){
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
                 login_form.find('input').val('');
             }
         });
@@ -179,40 +181,73 @@ $(document).ready(function()
     // Trigger when 'create character' form is submitted
     $(document).on('submit', '#create_character_form', function()
     {
-
-        // handle for create_character_form
         var create_character_form = $(this);
 
-        // validate jwt to verify access
+        // Validate JWT
         var jwt = getCookie('jwt');
 
-        // get form data
+        // Get form data
         var create_character_form_obj = create_character_form.serializeObject()
 
-        // add jwt on the object
+        // Add JWT to the object
         create_character_form_obj.jwt = jwt;
 
-        // convert object to json string
+        // Convert object to JSON string
         var form_data = JSON.stringify(create_character_form_obj);
 
-        // submit form data to api
+        // Submit form data to API
         $.ajax({
             url: "api/characters/create_character.php",
             type : "POST",
             contentType : "application/json",
             data : form_data,
             success : function(result) {
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+                showManageCharacterForm();
+                $('#response').html("<div class='alert alert-success'>" + result.body + "</div>");
             },
-            error: function(xhr, resp, text){
+            error: function(result){
                 showLoginPage();
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
+            }
+        });
+        return false;
+    });
+    
+    $(document).on('submit', '#create_guild_form', function()
+    {
+        var create_guild_form = $(this);
+
+        // Validate JWT
+        var jwt = getCookie('jwt');
+
+        // Get form data
+        var create_guild_form_obj = create_guild_form.serializeObject()
+
+        // Add JWT to the object
+        create_guild_form_obj.jwt = jwt;
+
+        // Convert object to JSON string
+        var form_data = JSON.stringify(create_guild_form_obj);
+
+        // Submit form data to API
+        $.ajax({
+            url: "api/guilds/create_guild.php",
+            type : "POST",
+            contentType : "application/json",
+            data : form_data,
+            success : function(result) {
+                showManageCharacterForm();
+                $('#response').html("<div class='alert alert-success'>" + result.body + "</div>");
+            },
+            error: function(result){
+                showLoginPage();
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             }
         });
         return false;
     });
 
-    // logout the user
+    // Logout
     $(document).on('click', '#logout', function()
     {
         showLoginPage();
@@ -267,9 +302,9 @@ $(document).ready(function()
     // If the user is logged out
     function showLoggedOutMenu()
     {
-        // Show/hide navbar buttons
+        // Hide/show relevant buttons on the navbar
         $("#login, #sign_up").show();
-        $("#logout, #create_character, #manage_characters").hide();
+        $("#logout, #create_character, #manage_characters, #manage_guilds").hide();
     }
 
     // Show home page
@@ -300,7 +335,7 @@ $(document).ready(function()
         //});
     //}
 
-    // get or read cookie
+    // Get or read cookie
     function getCookie(cname)
     {
         var name = cname + "=";
@@ -311,7 +346,6 @@ $(document).ready(function()
             while (c.charAt(0) == ' '){
                 c = c.substring(1);
             }
-
             if (c.indexOf(name) == 0) {
                 return c.substring(name.length, c.length);
             }
@@ -319,12 +353,12 @@ $(document).ready(function()
         return "";
     }
 
-    // if the user is logged in
+    // If the player is logged in
     function showLoggedInMenu()
     {
-        // hide login and sign up from navbar & show logout button
+        // Hide/show relevant buttons on the navbar
         $("#login, #sign_up").hide();
-        $("#logout, #create_character, #manage_characters").show();
+        $("#logout, #create_character, #manage_characters, #manage_guilds").show();
     }
 
     function showCreateCharacterForm()
@@ -338,12 +372,12 @@ $(document).ready(function()
                     <h2>Create Character</h2>
                     <form id='create_character_form'>
                         <div class="form-group">
-                            <label for="name">Character name</label>
+                            <label for="name">Character Name</label>
                             <input type="text" class="form-control" name="name" id="name" required value="" />
                         </div>
 
                         <div class="form-group">
-                            <label for="char_race">Character race</label>
+                            <label for="char_race">Character Race</label>
                             <select name="char_race">
                                 <option value="1">Human</option>
                                 <option value="2">Dwarf</option>
@@ -352,7 +386,7 @@ $(document).ready(function()
                         </div>
         
                         <div class="form-group">
-                            <label for="char_class">Character class</label>
+                            <label for="char_class">Character Class</label>
                             <select name="char_class">
                                 <option value="1">Warrior</option>
                                 <option value="2">Rogue</option>
@@ -363,7 +397,6 @@ $(document).ready(function()
                         <button type='submit' class='btn btn-primary'>Create</button>
                     </form>
                 `;
-
             clearResponse();
             $('#content').html(html);
         })
@@ -371,7 +404,65 @@ $(document).ready(function()
         // on error/fail, tell the user he needs to login to show the account page
         .fail(function(result){
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
+        });
+    }
+    
+    function showCreateGuildForm()
+    {
+        // validate jwt to verify access
+        var jwt = getCookie('jwt');
+        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+            $.post("api/characters/read_guildless_owned.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+                
+                var options = "";
+                $(jQuery.parseJSON(JSON.stringify(result.data))).each(function() {
+                    options += "<option value=" + this.id + ">" + this.name + "</option>";
+                });
+                var html = `
+                        <h2>Create Guild</h2>
+                        <form id='create_guild_form'>
+        
+                            <div class="form-group">
+                                <label for="char_race">Guildmaster</label>
+                                <select name="gm" id="gm_candidates">
+                                    ` + options + `
+                                </select>
+                            </div>
+        
+                            <div class="form-group">
+                                <label for="name">Guild Name</label>
+                                <input type="text" class="form-control" name="name" id="name" required value="" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="guild_type">Guild Type</label>
+                                <select name="guild_type">
+                                    <option value="1">PvE</option>
+                                    <option value="2">PvP</option>
+                                    <option value="3">RP</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Guild Description</label>
+                                <input type="text" class="form-control" name="description" id="description" required value="" />
+                            </div>
+
+                            <button type='submit' class='btn btn-primary'>Create</button>
+                        </form>
+                    `;
+                clearResponse();
+                $('#content').html(html);
+            })
+            .fail(function(result){
+                showLoginPage();
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
+            });
+        })
+        .fail(function(result){
+            showLoginPage();
+            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
         });
     }
     
@@ -416,12 +507,12 @@ $(document).ready(function()
             })
             .fail(function(result){
                 showLoginPage();
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             });
         })
         .fail(function(result){
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
         });
     }
     
@@ -437,21 +528,21 @@ $(document).ready(function()
                 $('#content').append("<h1>Guilds you own</h1><table>");
                 $('#content').append("<tr>");
                     $('#content').append("<td>ID</td>");
-                    $('#content').append("<td>Name</td>");
-                    $('#content').append("<td>Race</td>");
-                    $('#content').append("<td>Class</td>");
-                    $('#content').append("<td>Level</td>");
-                    $('#content').append("<td>Guild</td>");
+                    $('#content').append("<td>Guild Name</td>");
+                    $('#content').append("<td>Type</td>");
+                    $('#content').append("<td>Description</td>");
+                    $('#content').append("<td>GM Character Name</td>");
                     //$('#content').append("<td>Leave guild</td>");
                 $('#content').append("</tr>");
                 $(jQuery.parseJSON(JSON.stringify(result.data))).each(function() {
                     $('#content').append("<tr>");
                     $('#content').append("<td>" + this.id + "</td>");
-                    $('#content').append("<td>" + this.name + "</td>");
-                    $('#content').append("<td>" + this.race + "</td>");
-                    $('#content').append("<td>" + this.class + "</td>");
-                    $('#content').append("<td>" + this.level + "</td>");
-                    $('#content').append("<td>" + this.guild + "</td>");
+                    $('#content').append("<td>" + this.guild_name + "</td>");
+                    $('#content').append("<td>" + this.type + "</td>");
+                    $('#content').append("<td>" + this.description + "</td>");
+                    $('#content').append("<td>" + this.gm_name + "</td>");
+                    $('#content').append("<td>Edit</td>");
+                    $('#content').append("<td>Delete link goes here</td>");
                     if (this.guild != null) {
                         $('#content').append("<td>Leave guild link here</td>");
                     }
@@ -466,12 +557,12 @@ $(document).ready(function()
             })
             .fail(function(result){
                 showLoginPage();
-                $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             });
         })
         .fail(function(result){
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + xhr.responseJSON.body + "</div>");
+            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
         });
     }
     

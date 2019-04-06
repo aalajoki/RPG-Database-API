@@ -6,6 +6,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
+ 
 
 include_once '../config/core.php';
 
@@ -14,15 +15,15 @@ include_once '../libs/php-jwt-master/src/ExpiredException.php';
 include_once '../libs/php-jwt-master/src/SignatureInvalidException.php';
 include_once '../libs/php-jwt-master/src/JWT.php';
 use \Firebase\JWT\JWT;
- 
-// files needed to connect to database
-require_once('../config/database.php'); 
-include_once '../players/class/player.php';
 
- 
-// Get posted data
+include_once '../config/database.php';
+include_once 'class/character.php';
+
+$characterOb = new Character($pdo);
+
+// Get data from the request
 $data = json_decode(file_get_contents("php://input"));
- 
+
 // Get JWT
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
@@ -30,35 +31,35 @@ $jwt = isset($data->jwt) ? $data->jwt : "";
 if ($jwt) {
     // If JWT is not empty
     try {
-
         $decoded = JWT::decode($jwt, $key, array('HS256'));
         
-        // Set data for SQL statement
         $id = $decoded->data->id;
-        $name = $data->name;
-        $name = '"' . $name . '"';
-        $char_race = $data->char_race;
-        $char_class = $data->char_class;
-
-    
-        $statement = $pdo->prepare(
-            "INSERT INTO Player_Character (player_id, name, char_race, char_class)
-            VALUES ($id, $name, $char_race, $char_class);"
-        );
+        
         try {
-            $statement->execute();
+            $query_results = $characterOb->GetGuildlessOwned($id);
         }
-        catch (PDOException $e) {
-            echo json_encode($e);
-            die();
+        catch (Exception $e) {
+            echo $e;
         }
 
-        http_response_code(201);
-        echo json_encode(array(
-            "status" => 201,
-            "body" => "Character created."
-            //"data" => created character info here
-        ));
+        if ($query_results) {
+            http_response_code(200);
+            $response = array(
+                "status" => 200, 
+                "body" => "Guildless characters found.",
+                "data" => $query_results
+            );
+        }
+        else {
+            http_response_code(404);
+            $response = array(
+                "status" => 404, 
+                "body" => "No guildless characters found."
+            );
+        }
+
+        $json = json_encode($response);
+        echo $json;
     }
     // JWT is invalid
     catch (Exception $e) {

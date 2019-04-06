@@ -16,22 +16,17 @@ include_once '../libs/php-jwt-master/src/JWT.php';
 use \Firebase\JWT\JWT;
  
 require_once('../config/database.php'); 
-include_once '../players/player.php';
-
-//REFACTOR INTO CHARACTER FILES INTO A CHARACTER OBJECT?
+include_once '../players/class/player.php';
  
-// get posted data
+// Get posted data
 $data = json_decode(file_get_contents("php://input"));
  
-// get jwt
+// Get JWT
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
-// JWT is not empty
 if ($jwt) {
- 
-    // Attempt to decode & create character on success
+    // JWT is not empty
     try {
-
         $decoded = JWT::decode($jwt, $key, array('HS256'));
         
         // Set data for SQL statement

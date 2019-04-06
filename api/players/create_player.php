@@ -7,19 +7,19 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 include_once '../config/database.php';
-include_once 'player.php';
+include_once 'class/player.php';
 
 $player = new Player($pdo);
 
 // Get data from the request
 $data = json_decode(file_get_contents("php://input"));
- 
+
+// Data from HTML into the creation function
 $player->username = $data->username;
 $player->email = $data->email;
 $player->password = $data->password;
  
-if ($player->create()){
- 
+if ($player->create()) {
     $response = array(
         "status" => 200, 
         "body" => "Player account has been created."

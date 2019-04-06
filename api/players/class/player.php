@@ -32,8 +32,8 @@ class Player
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
 
-        $statement->bindParam(':username', $this->username);
-        $statement->bindParam(':email', $this->email);
+        $statement->bindParam(':username', $this->username, PDO::PARAM_STR);
+        $statement->bindParam(':email', $this->email, PDO::PARAM_STR);
 
         // Hash password
         $password_hash = password_hash($this->password, PASSWORD_BCRYPT);

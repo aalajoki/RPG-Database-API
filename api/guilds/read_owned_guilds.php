@@ -17,6 +17,7 @@ use \Firebase\JWT\JWT;
 
 require_once('../config/database.php'); 
 
+// Get posted data & JWT
 $data = json_decode(file_get_contents("php://input"));
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
@@ -51,12 +52,11 @@ if ($jwt) {
             die();
         }
         if (!$results) {
-            $error = array(
+            http_response_code(404);
+            echo json_encode(array(
                 "status" => 404, 
                 "body" => "No owned guilds found."
-            );
-            http_response_code(404);
-            $json = json_encode($error);
+            ));
         }
         else {
             http_response_code(200);
