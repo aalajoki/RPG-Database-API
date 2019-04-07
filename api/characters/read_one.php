@@ -7,7 +7,7 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
 
-require_once('../config/database.php'); 
+require_once '../config/database.php'; 
 
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);

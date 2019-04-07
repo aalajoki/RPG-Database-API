@@ -6,8 +6,8 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../config/database.php';
-include_once 'class/player.php';
+require_once '../config/database.php';
+require_once 'class/player.php';
 
 $player = new Player($pdo);
 
@@ -18,20 +18,23 @@ $data = json_decode(file_get_contents("php://input"));
 $player->username = $data->username;
 $player->email = $data->email;
 $player->password = $data->password;
+
+$player_id = $player->Create();
  
-if ($player->create()) {
+if ($player_id) {
+    http_response_code(200);
     $response = array(
         "status" => 200, 
-        "body" => "Player account has been created."
+        "body" => "Player account created.",
+        "player_id" => $player_id
     );
-    http_response_code(200);
 }
 else {
+    http_response_code(400);
     $response = array(
         "status" => 400, 
-        "body" => "Unable to create player account."
+        "body" => "Unable to create player account. Please contact an admin."
     );
-    http_response_code(400);
 }
 
 $json = json_encode($response);

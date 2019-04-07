@@ -20,14 +20,11 @@ $player = new Player($pdo);
 
 // Get posted data
 $data = json_decode(file_get_contents("php://input"));
- 
-// Set product property values
 $player->email = $data->email;
-$email_exists = $player->emailExists();
 
+$email_exists = $player->EmailExists();
 
-
-// Check that email exists and password is correct
+// Check that email exists and password is correct (compared to the password found with email)
 if ($email_exists && password_verify($data->password, $player->password)) {
  
     $token = array(
@@ -43,25 +40,18 @@ if ($email_exists && password_verify($data->password, $player->password)) {
     );
 
     http_response_code(200);
-
     // Generate JWT
     $jwt = JWT::encode($token, $key);
-    echo json_encode(
-        array(
-            "status" => 200,
-            "body" => "Successful login.",
-            "jwt" => $jwt
-        )
-    );
+    echo json_encode(array(
+        "status" => 200, 
+        "body" => "Successful login.",
+        "jwt" => $jwt
+    ));
 }
-// Login failed
 else {
     http_response_code(401);
-    
-    echo json_encode(
-        array(
-            "status" => 401,
-            "body" => "Login failed.",
-        )
-    );
+    echo json_encode(array(
+        "status" => 401, 
+        "body" => "Login failed. Account does not exist or the password is incorrect."
+    ));
 }

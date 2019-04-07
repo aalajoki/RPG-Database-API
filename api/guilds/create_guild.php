@@ -19,7 +19,7 @@ include_once '../config/database.php';
 include_once 'class/guild.php';
 include_once '../characters/class/character.php';
 
-// Get posted data & JWT
+// Get posted data and JWT
 $data = json_decode(file_get_contents("php://input"));
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
@@ -27,6 +27,7 @@ if ($jwt) {
     // If JWT is not empty
     try {
         $decoded = JWT::decode($jwt, $key, array('HS256'));
+        
         $player_id = $decoded->data->id;
          
         $guild = new Guild($pdo);
@@ -40,31 +41,30 @@ if ($jwt) {
         
         if (!$character->ValidateOwnership($gm_id, $player_id)) {
             http_response_code(403);
-            $response = array(
-                "status" => 403, 
+            echo json_encode(array(
+                "status" => 403,
                 "body" => "Forbidden. You must own the character to make them a guild master."
-            );
+            ));
         }
         else {
             $created_guild_id = $guild->Create($gm_id);
 
             if ($created_guild_id) {
                 http_response_code(200);
-                $response = array(
-                    "status" => 200, 
+                echo json_encode(array(
+                    "status" => 200,
                     "body" => "Guild has been created.",
                     "guild_id" => $created_guild_id
-                );
+                ));
             }
             else {
                 http_response_code(400);
-                $response = array(
-                    "status" => 400, 
-                    "body" => "Unable to create guild."
-                );
+                echo json_encode(array(
+                    "status" => 400,
+                    "body" => "Unable to create guild. Please contact an admin."
+                ));
             }
         }
-        echo json_encode($response);
     }
     // JWT is invalid
     catch (Exception $e) {
@@ -80,8 +80,8 @@ if ($jwt) {
 else {
     http_response_code(401);
     echo json_encode(array(
-            "status" => 401,
-            "body" => "Access denied. Please log in."
-            //"error" => $e->getMessage()
+        "status" => 401,
+        "body" => "Access denied. Please log in."
+        //"error" => $e->getMessage()
     ));
 }

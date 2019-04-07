@@ -7,39 +7,22 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
 
-require_once('../config/database.php'); 
+require_once('../config/database.php');
+require_once 'class/guild.php';
 
+$guild = new Guild($pdo);
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if ($id == FALSE || $id == NULL) {
-    $error = array(
+    http_response_code(400);
+    echo json_encode(array(
         "status" => 400, 
         "body" => "Invalid request. Please ensure that the URL and guild ID are correct."
-    );
-    http_response_code(400);
-    $json = json_encode($error);
+    ));
 }
 else {
-    $statement = $pdo->prepare(
-        "SELECT b.id, b.name, c.rank, a.joined
-        FROM guild_membership a
-        LEFT JOIN player_character b
-        ON a.char_id = b.id
-        LEFT JOIN guild_rank c
-        ON a.char_rank = c.id
-        WHERE a.guild_id = ?"
-    );
-
-    try {
-        $statement->bindParam(1, $id, PDO::PARAM_INT);
-        $statement->execute();
-        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
-    catch (PDOException $e) {
-        echo json_encode($e);
-    }
-
+    $results = $guild->ReadMembers($id);
 
     if (!$results) {
         $error = array(
@@ -53,7 +36,7 @@ else {
         http_response_code(200);
         echo json_encode(array(
             "status" => 200,
-            "body" => "Memberlist query successful.",
+            "body" => "Members found.",
             "data" => $results
         ));
     }

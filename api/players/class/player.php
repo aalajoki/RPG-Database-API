@@ -43,10 +43,10 @@ class Player
         $this->UniqueExists("email");
         $this->UniqueExists("username");
         
-        if($statement->execute()){
-            return true;
+        if ($statement->execute()){
+            $player_id = $this->conn->lastInsertId();
+            return $player_id;
         }
-        return false;
     }
     
     // Check if given unique property already exists or not
@@ -90,23 +90,17 @@ class Player
 
         // Remove any HTML
         $this->email = htmlspecialchars(strip_tags($this->email));
-
+        
         $statement->bindParam(1, $this->email, PDO::PARAM_STR);
-
         $statement->execute();
 
         $num = $statement->rowCount();
-        // if email exists, assign values to object properties for easy access and use for php sessions
         if ($num > 0){
-
-            // get record details / values
+            // If email exists, get the missing data
             $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-            // assign values to object properties
             $this->id = $row['id'];
             $this->username = $row['username'];
             $this->password = $row['password'];
-
             return true;
         }
         return false;

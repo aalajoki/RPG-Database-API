@@ -7,8 +7,10 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
 
-require_once('../config/database.php'); 
+require_once '../config/database.php'; 
+require_once 'class/guild.php';
 
+$guild = new Guild($pdo);
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
@@ -20,18 +22,7 @@ if ($id == FALSE || $id == NULL) {
     ));
 }
 else {
-    $statement = $pdo->prepare(
-        "SELECT a.id, a.name, b.type, a.description
-        FROM guild a
-        LEFT JOIN guild_type b
-        ON a.guild_type = b.id
-        WHERE a.id=?"
-    );
-
-    $statement->bindParam(1, $id, PDO::PARAM_INT);
-    $statement->execute();
-    $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-
+    $results = $guild->ReadOne($id);
 
     if (!$results) {
         http_response_code(404);
@@ -44,7 +35,7 @@ else {
         http_response_code(200);
         echo json_encode(array(
             "status" => 200,
-            "body" => "Character query successful.",
+            "body" => "Guild found.",
             "data" => $results
         ));
     }

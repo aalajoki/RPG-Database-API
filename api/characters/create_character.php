@@ -15,50 +15,48 @@ include_once '../libs/php-jwt-master/src/SignatureInvalidException.php';
 include_once '../libs/php-jwt-master/src/JWT.php';
 use \Firebase\JWT\JWT;
  
-// files needed to connect to database
-require_once('../config/database.php'); 
-include_once '../players/class/player.php';
+require_once '../config/database.php'; 
+require_once '../players/class/player.php';
+require_once 'class/character.php';
 
  
-// Get posted data
+// Get posted data and JWT
 $data = json_decode(file_get_contents("php://input"));
- 
-// Get JWT
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
 
 if ($jwt) {
     // If JWT is not empty
     try {
-
+        
         $decoded = JWT::decode($jwt, $key, array('HS256'));
         
+        $character = new Character($pdo);
+        
         // Set data for SQL statement
-        $id = $decoded->data->id;
-        $name = $data->name;
-        $name = '"' . $name . '"';
-        $char_race = $data->char_race;
-        $char_class = $data->char_class;
+        $character->player_id = $decoded->data->id;
+        $character->name = $data->name;
+        $character->char_race = $data->char_race;
+        $character->char_class = $data->char_class;
 
     
-        $statement = $pdo->prepare(
-            "INSERT INTO Player_Character (player_id, name, char_race, char_class)
-            VALUES ($id, $name, $char_race, $char_class);"
-        );
-        try {
-            $statement->execute();
-        }
-        catch (PDOException $e) {
-            echo json_encode($e);
-            die();
-        }
+        $created_id = $character->Create();
 
-        http_response_code(201);
-        echo json_encode(array(
-            "status" => 201,
-            "body" => "Character created."
-            //"data" => created character info here
-        ));
+        if ($created_id) {
+            http_response_code(201);
+            echo json_encode(array(
+                "status" => 201,
+                "body" => "Character created.",
+                "character_id" => $created_id
+            ));
+        }
+        else {
+            http_response_code(400);
+            echo json_encode(array(
+                "status" => 400,
+                "body" => "Character creation failed. Please contact an admin."
+            ));
+        }
     }
     // JWT is invalid
     catch (Exception $e) {
