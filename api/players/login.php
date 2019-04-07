@@ -6,9 +6,9 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once '../config/core.php';
-include_once '../config/database.php';
-include_once 'class/player.php';
+require_once '../config/core.php';
+require_once '../config/database.php';
+require_once 'class/player.php';
 
 include_once '../libs/php-jwt-master/src/BeforeValidException.php';
 include_once '../libs/php-jwt-master/src/ExpiredException.php';

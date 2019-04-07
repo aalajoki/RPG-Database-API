@@ -151,7 +151,8 @@ $(document).ready(function()
     // Submit signing up form
     $(document).on('submit', '#sign_up_form', function()
     {
-        var form_data = SerializeAuthenticatedFormData($(this));
+        var form_data = JSON.stringify($(this).serializeObject());
+        
         BasicAjaxRequest("api/players/signup.php", form_data);
         return false;
     });
@@ -197,7 +198,7 @@ $(document).ready(function()
             <h2>Sign Up</h2>
             <form id='sign_up_form'>
                 <div class="form-group">
-                    <label for="first_name">Username</label>
+                    <label for="username">Username</label>
                     <input type="text" class="form-control" name="username" id="username" required />
                 </div>
  
