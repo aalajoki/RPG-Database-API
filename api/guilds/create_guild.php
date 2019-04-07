@@ -27,7 +27,7 @@ if ($jwt) {
     // If JWT is not empty
     try {
         $decoded = JWT::decode($jwt, $key, array('HS256'));
-        $id = $decoded->data->id;
+        $player_id = $decoded->data->id;
          
         $guild = new Guild($pdo);
         $character = new Character($pdo);
@@ -38,31 +38,31 @@ if ($jwt) {
         $guild->guild_type = $data->guild_type;
         $guild->description = $data->description;
         
-        if (!Character.ValidateOwnership($gm_id, $id)) {
+        if (!$character->ValidateOwnership($gm_id, $player_id)) {
             http_response_code(403);
             $response = array(
                 "status" => 403, 
-                "body" => "Forbidden. You must own the character to make them a guild master.",
-                "data" => $created_guild_id
-            );
-        }
-
-        $created_guild_id = $guild->create($gm_id);
-        
-        if ($created_guild_id) {
-            http_response_code(200);
-            $response = array(
-                "status" => 200, 
-                "body" => "Guild has been created.",
-                "data" => $created_guild_id
+                "body" => "Forbidden. You must own the character to make them a guild master."
             );
         }
         else {
-            http_response_code(400);
-            $response = array(
-                "status" => 400, 
-                "body" => "Unable to create guild."
-            );
+            $created_guild_id = $guild->Create($gm_id);
+
+            if ($created_guild_id) {
+                http_response_code(200);
+                $response = array(
+                    "status" => 200, 
+                    "body" => "Guild has been created.",
+                    "guild_id" => $created_guild_id
+                );
+            }
+            else {
+                http_response_code(400);
+                $response = array(
+                    "status" => 400, 
+                    "body" => "Unable to create guild."
+                );
+            }
         }
         echo json_encode($response);
     }

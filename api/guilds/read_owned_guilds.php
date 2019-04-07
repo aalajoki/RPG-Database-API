@@ -21,10 +21,9 @@ require_once('../config/database.php');
 $data = json_decode(file_get_contents("php://input"));
 $jwt = isset($data->jwt) ? $data->jwt : "";
  
-// JWT is not empty
+
 if ($jwt) {
- 
-    // Attempt to decode & create character on success
+    // JWT is not empty
     try {
         $decoded = JWT::decode($jwt, $key, array('HS256'));
         
@@ -42,15 +41,11 @@ if ($jwt) {
             ON a.guild_type = d.id
             WHERE c.player_id = ? AND b.char_rank = 5"
         );
-        try {
-            $statement->bindParam(1, $id, PDO::PARAM_INT);
-            $statement->execute();
-            $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-        }
-        catch (PDOException $e) {
-            echo json_encode($e);
-            die();
-        }
+        
+        $statement->bindParam(1, $id, PDO::PARAM_INT);
+        $statement->execute();
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+        
         if (!$results) {
             http_response_code(404);
             echo json_encode(array(
@@ -77,7 +72,7 @@ if ($jwt) {
         ));
     }
 }
-// If JWT is empty
+// JWT is empty
 else {
     http_response_code(401);
     echo json_encode(array(

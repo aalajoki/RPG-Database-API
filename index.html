@@ -7,8 +7,6 @@
  
         <title>Alajoki REST API</title>
  
-        <!-- CSS links will be here -->
- 
     </head>
 <body>
  
@@ -53,6 +51,7 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="style.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js"></script>
 <script>
 // jQuery codes
 $(document).ready(function()
@@ -177,19 +176,18 @@ $(document).ready(function()
     {
         showManageGuildForm();
     });
+    
 
     // Trigger when 'create character' form is submitted
     $(document).on('submit', '#create_character_form', function()
     {
         var create_character_form = $(this);
 
-        // Validate JWT
-        var jwt = getCookie('jwt');
-
         // Get form data
         var create_character_form_obj = create_character_form.serializeObject()
 
-        // Add JWT to the object
+        // Add JWT to the object from cookie
+        var jwt = $.cookie("jwt");
         create_character_form_obj.jwt = jwt;
 
         // Convert object to JSON string
@@ -217,13 +215,11 @@ $(document).ready(function()
     {
         var create_guild_form = $(this);
 
-        // Validate JWT
-        var jwt = getCookie('jwt');
+        // Get form data and serialize it
+        var create_guild_form_obj = create_guild_form.serializeObject();
 
-        // Get form data
-        var create_guild_form_obj = create_guild_form.serializeObject()
-
-        // Add JWT to the object
+        // Add JWT to the serialized object from cookie
+        var jwt = $.cookie("jwt");
         create_guild_form_obj.jwt = jwt;
 
         // Convert object to JSON string
@@ -232,6 +228,39 @@ $(document).ready(function()
         // Submit form data to API
         $.ajax({
             url: "api/guilds/create_guild.php",
+            type : "POST",
+            contentType : "application/json",
+            data : form_data,
+            success : function(result) {
+                showManageCharacterForm();
+                $('#response').html("<div class='alert alert-success'>" + result.body + "</div>");
+            },
+            error: function(result){
+                showLoginPage();
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
+            }
+        });
+        return false;
+    });
+    
+    
+    $(document).on('submit', '#edit_guild_form', function()
+    {
+        var edit_guild_form = $(this);
+
+        // Get form data and serialize it
+        var edit_guild_form_obj = edit_guild_form.serializeObject();
+
+        // Add JWT to the serialized object from cookie
+        var jwt = $.cookie("jwt");
+        edit_guild_form_obj.jwt = jwt;
+
+        // Convert object to JSON string
+        var form_data = JSON.stringify(edit_guild_form_obj);
+
+        // Submit form data to API
+        $.ajax({
+            url: "api/guilds/edit_guild.php",
             type : "POST",
             contentType : "application/json",
             data : form_data,
@@ -299,75 +328,24 @@ $(document).ready(function()
         document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     }
 
-    // If the user is logged out
+    // If the user is logged out, change navbar accordingly
     function showLoggedOutMenu()
     {
-        // Hide/show relevant buttons on the navbar
         $("#login, #sign_up").show();
         $("#logout, #create_character, #manage_characters, #manage_guilds").hide();
     }
 
-    // Show home page
-    //function showHomePage(){
-
-        // Validate JWT
-        //var jwt = getCookie('jwt');
-
-        //$.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
-            // If valid, show homepage
-            //var html = `
-            //    <div class="card">
-            //        <div class="card-header">Welcome to Home!</div>
-            //        <div class="card-body">
-            //            <h5 class="card-title">You are logged in.</h5>
-            //            <p class="card-text">You won't be able to access the home and account pages if you are not logged in.</p>
-            //        </div>
-            //    </div>
-            //    `;
-
-            //$('#content').html(html);
-            //showLoggedInMenu();
-        //})
-        // show login page on error
-        //.fail(function(result){
-        //    showLoginPage();
-        //    $('#response').html("<div class='alert alert-danger'>Please login to access the home page.</div>");
-        //});
-    //}
-
-    // Get or read cookie
-    function getCookie(cname)
-    {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for(var i = 0; i <ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' '){
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    // If the player is logged in
+    // If the player is logged in, change navbar accordingly
     function showLoggedInMenu()
     {
-        // Hide/show relevant buttons on the navbar
         $("#login, #sign_up").hide();
         $("#logout, #create_character, #manage_characters, #manage_guilds").show();
     }
 
     function showCreateCharacterForm()
     {
-        // validate jwt to verify access
-        var jwt = getCookie('jwt');
-        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
-
-            // if response is valid, put user details in the form
+        if ($.cookie('jwt')) {
+            
             var html = `
                     <h2>Create Character</h2>
                     <form id='create_character_form'>
@@ -399,20 +377,18 @@ $(document).ready(function()
                 `;
             clearResponse();
             $('#content').html(html);
-        })
-//<input type="email" class="form-control" name="email" id="email" required value="` + result.data.email + `" />
-        // on error/fail, tell the user he needs to login to show the account page
-        .fail(function(result){
+        }
+        else {
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
-        });
+            $('#response').html("<div class='alert alert-danger'>Please log in.</div>");
+        }
     }
     
     function showCreateGuildForm()
     {
-        // validate jwt to verify access
-        var jwt = getCookie('jwt');
-        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+        if ($.cookie('jwt')){
+            
+            var jwt = $.cookie("jwt");
             $.post("api/characters/read_guildless_owned.php", JSON.stringify({ jwt:jwt })).done(function(result) {
                 
                 var options = "";
@@ -455,26 +431,77 @@ $(document).ready(function()
                 clearResponse();
                 $('#content').html(html);
             })
-            .fail(function(result){
+            .fail(function(result) {
                 showLoginPage();
                 $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             });
-        })
-        .fail(function(result){
+        }
+        else {
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
-        });
+            $('#response').html("<div class='alert alert-danger'>Please log in.</div>");
+        }
+    }
+    
+    function showEditGuildForm(id)
+    {
+        if ($.cookie('jwt')){
+            
+            var jwt = $.cookie("jwt");
+            $.post("api/guilds/read_one.php?id=" + id, JSON.stringify({ jwt:jwt })).done(function(result) {
+
+                var options = "";
+                $(jQuery.parseJSON(JSON.stringify(result.data))).each(function() {
+                    options += "<option value=" + this.id + ">" + this.name + "</option>";
+                });
+                var html = `
+                        <h2>Editing Guild ` + results.data.name + `</h2>
+                        <form id='edit_guild_form'>
+       
+                            <div class="form-group">
+                                <label for="name">Edit Name</label>
+                                <input type="text" class="form-control" name="name" id="name" required value="" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="guild_type">Change Type</label>
+                                <select name="guild_type">
+                                    <option value="1">PvE</option>
+                                    <option value="2">PvP</option>
+                                    <option value="3">RP</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Edit Description</label>
+                                <input type="text" class="form-control" name="description" id="description" required value="` + results.data.description + `" />
+                            </div>
+
+                            <button type='submit' class='btn btn-primary'>Update</button>
+                        </form>
+                    `;
+                clearResponse();
+                $('#content').html(html);
+                $('select option[value="' + data.results.guild_type + '"]').attr("selected",true);
+            })
+            .fail(function(result) {
+                showLoginPage();
+                $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
+            });
+        }
+        else {
+            showLoginPage();
+            $('#response').html("<div class='alert alert-danger'>Please log in.</div>");
+        }
     }
     
     function showManageCharacterForm() 
     {
-        // Get JWT for validation
-        var jwt = getCookie('jwt');
         $('#content').empty();
         // If the user is logged in, search and show the user's characters
-        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+        if ($.cookie('jwt')) {
+            var jwt = $.cookie("jwt");
+            
             $.post("api/characters/read_characters.php", JSON.stringify({ jwt:jwt })).done(function(result) {
-                
                 $('#content').append("<h1>Your characters</h1><table>");
                 $('#content').append("<tr>");
                     $('#content').append("<td>ID</td>");
@@ -509,20 +536,21 @@ $(document).ready(function()
                 showLoginPage();
                 $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             });
-        })
-        .fail(function(result){
+        }
+        else {
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
-        });
+            $('#response').html("<div class='alert alert-danger'>Please log in.</div>");
+        }
     }
     
     function showManageGuildForm() 
     {
         // Get JWT for validation
-        var jwt = getCookie('jwt');
         $('#content').empty();
         // If the user is logged in, search and show the user's guilds
-        $.post("api/players/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+        if ($.cookie('jwt')) {
+            var jwt = $.cookie("jwt");
+            var index = 0;
             $.post("api/guilds/read_owned_guilds.php", JSON.stringify({ jwt:jwt })).done(function(result) {
                 
                 $('#content').append("<h1>Guilds you own</h1><table>");
@@ -541,11 +569,8 @@ $(document).ready(function()
                     $('#content').append("<td>" + this.type + "</td>");
                     $('#content').append("<td>" + this.description + "</td>");
                     $('#content').append("<td>" + this.gm_name + "</td>");
-                    $('#content').append("<td>Edit</td>");
+                    $('#content').append("<td><a href='#' class='edit' id='" + this.id + "'>Edit</a></td>");
                     $('#content').append("<td>Delete link goes here</td>");
-                    if (this.guild != null) {
-                        $('#content').append("<td>Leave guild link here</td>");
-                    }
                     //else {
                     //    $('#content').append("<td></td>");
                     //}
@@ -559,13 +584,12 @@ $(document).ready(function()
                 showLoginPage();
                 $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
             });
-        })
-        .fail(function(result){
+        }
+        else {
             showLoginPage();
-            $('#response').html("<div class='alert alert-danger'>" + result.responseJSON.body + "</div>");
-        });
+            $('#response').html("<div class='alert alert-danger'>Please log in.</div>");
+        }
     }
-    
     //<input type="email" class="form-control" name="email" id="email" required value="` + result.data.email + `" />
 
     // Format form data into JSON
@@ -587,10 +611,13 @@ $(document).ready(function()
     };
     
     // Show login page when the page has loaded
-    showLoginPage();
+    //showLoginPage();
+});
+
+$('body').on('click', 'a.edit', function(event) {
+    alert(event.target.id);
 });
 </script>
-
 
 </body>
 </html>

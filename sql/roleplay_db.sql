@@ -61,7 +61,7 @@ CREATE TABLE Player_Character
 CREATE TABLE Guild
 (
     id INT AUTO_INCREMENT,
-    name VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL UNIQUE,
     guild_type INT NOT NULL,
     FOREIGN KEY (guild_type) REFERENCES Guild_Type(id),
     description VARCHAR(100),
