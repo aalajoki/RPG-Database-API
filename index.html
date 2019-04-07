@@ -81,7 +81,7 @@ $(document).ready(function()
             </form>
             `;
  
-        clearResponse();
+        //clearResponse();
         $('#content').html(html);
     });
  
@@ -315,7 +315,7 @@ $(document).ready(function()
             `;
 
         $('#content').html(html);
-        clearResponse();
+        //clearResponse();
         showLoggedOutMenu();
     }
 
@@ -332,14 +332,14 @@ $(document).ready(function()
     function showLoggedOutMenu()
     {
         $("#login, #sign_up").show();
-        $("#logout, #create_character, #manage_characters, #manage_guilds").hide();
+        $("#logout, #create_character, #manage_characters, #manage_guilds, #create_guild").hide();
     }
 
     // If the player is logged in, change navbar accordingly
     function showLoggedInMenu()
     {
         $("#login, #sign_up").hide();
-        $("#logout, #create_character, #manage_characters, #manage_guilds").show();
+        $("#logout, #create_character, #manage_characters, #manage_guilds, #create_guild").show();
     }
 
     function showCreateCharacterForm()
@@ -375,7 +375,7 @@ $(document).ready(function()
                         <button type='submit' class='btn btn-primary'>Create</button>
                     </form>
                 `;
-            clearResponse();
+            //clearResponse();
             $('#content').html(html);
         }
         else {
@@ -428,7 +428,7 @@ $(document).ready(function()
                             <button type='submit' class='btn btn-primary'>Create</button>
                         </form>
                     `;
-                clearResponse();
+                //clearResponse();
                 $('#content').html(html);
             })
             .fail(function(result) {
@@ -448,18 +448,18 @@ $(document).ready(function()
             
             var jwt = $.cookie("jwt");
             $.post("api/guilds/read_one.php?id=" + id, JSON.stringify({ jwt:jwt })).done(function(result) {
-
-                var options = "";
+                var html;
+                var guild_type;
                 $(jQuery.parseJSON(JSON.stringify(result.data))).each(function() {
-                    options += "<option value=" + this.id + ">" + this.name + "</option>";
-                });
-                var html = `
-                        <h2>Editing Guild ` + results.data.name + `</h2>
+                    html = `
+                        <h2>Editing "` + this.name + `"</h2>
                         <form id='edit_guild_form'>
+        
+                            <input type="hidden" name="id" id="id" value="` + this.id + `"/>
        
                             <div class="form-group">
                                 <label for="name">Edit Name</label>
-                                <input type="text" class="form-control" name="name" id="name" required value="" />
+                                <input type="text" class="form-control" name="name" id="name" required value="` + this.name + `"/>
                             </div>
 
                             <div class="form-group">
@@ -473,15 +473,18 @@ $(document).ready(function()
 
                             <div class="form-group">
                                 <label for="description">Edit Description</label>
-                                <input type="text" class="form-control" name="description" id="description" required value="` + results.data.description + `" />
+                                <input type="text" class="form-control" name="description" id="description" required value="` + this.description + `" />
                             </div>
 
                             <button type='submit' class='btn btn-primary'>Update</button>
                         </form>
                     `;
-                clearResponse();
+                    guild_type = this.guild_type;
+                });
+
+                //clearResponse();
                 $('#content').html(html);
-                $('select option[value="' + data.results.guild_type + '"]').attr("selected",true);
+                $('select option[value="' + guild_type + '"]').attr("selected",true);
             })
             .fail(function(result) {
                 showLoginPage();
@@ -530,7 +533,7 @@ $(document).ready(function()
                });
                $('#content').append("</table>");
                 
-                clearResponse();
+                //clearResponse();
             })
             .fail(function(result){
                 showLoginPage();
@@ -550,10 +553,9 @@ $(document).ready(function()
         // If the user is logged in, search and show the user's guilds
         if ($.cookie('jwt')) {
             var jwt = $.cookie("jwt");
-            var index = 0;
             $.post("api/guilds/read_owned_guilds.php", JSON.stringify({ jwt:jwt })).done(function(result) {
                 
-                $('#content').append("<h1>Guilds you own</h1><table>");
+                $('#content').append("<h1>Guilds your characters own</h1><table>");
                 $('#content').append("<tr>");
                     $('#content').append("<td>ID</td>");
                     $('#content').append("<td>Guild Name</td>");
@@ -575,10 +577,13 @@ $(document).ready(function()
                     //    $('#content').append("<td></td>");
                     //}
                     $('#content').append("</tr>");
+                    
+                    document.getElementById(this.id).addEventListener("click", function() { 
+                        showEditGuildForm(this.id); 
+                    });
                });
                $('#content').append("</table>");
-                
-                clearResponse();
+                //clearResponse();
             })
             .fail(function(result){
                 showLoginPage();
@@ -611,12 +616,12 @@ $(document).ready(function()
     };
     
     // Show login page when the page has loaded
-    //showLoginPage();
+    showLoginPage();
 });
 
-$('body').on('click', 'a.edit', function(event) {
-    alert(event.target.id);
-});
+//$('body').on('click', 'a.edit', function(event) {
+//    alert(event.target.id);
+//});
 </script>
 
 </body>

@@ -37,32 +37,30 @@ if ($jwt) {
         $guild->guild_type = $data->guild_type;
         $guild->description = $data->description;
         
-        if (!Guild.ValidateOwnership($guild->id, $player_id)) {
+        if (!$guild->ValidateOwnership($guild->id, $player_id)) {
             http_response_code(403);
-            $response = array(
+            echo json_encode(array(
                 "status" => 403, 
-                "body" => "Forbidden. You must own the guild's GM in order to edit it."
-            );
+                "body" => "Forbidden. You must own the guild's GM character in order to edit it."
+            ));
         }
 
-        $edited = $guild->Edit($gm_id);
+        $edited = $guild->Edit($guild->id);
         
-        if ($created_guild_id) {
-            $response = array(
+        if ($edited) {
+            http_response_code(204);
+            echo json_encode(array(
                 "status" => 204, 
                 "body" => "Guild info has been updated."
-            );
-            http_response_code(204);
+            ));
         }
         else {
-            $response = array(
+            http_response_code(400);
+            echo json_encode(array(
                 "status" => 400, 
                 "body" => "Unable to update guild."
-            );
-            http_response_code(400);
+            ));
         }
-
-        echo json_encode($response);
     }
     // JWT is invalid
     catch (Exception $e) {

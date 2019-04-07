@@ -4,7 +4,7 @@ body {
 .starter-template {
     padding: 3rem 1.5rem; 
 }
-#logout, #manage_characters, #create_character { 
+#logout, #manage_characters, #create_character, #create_guild, #manage_guilds { 
     display: none; 
 }
 
