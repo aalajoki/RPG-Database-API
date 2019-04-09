@@ -15,7 +15,7 @@ $player = new Player($pdo);
 $data = json_decode(file_get_contents("php://input"));
 
 // Data from HTML into the creation function
-$player->username = $data->username;
+$player->username = $data->username; // CHECK THAT THESE AREN'T EMPTY
 $player->email = $data->email;
 $player->password = $data->password;
 
@@ -33,7 +33,7 @@ else {
     http_response_code(400);
     $response = array(
         "status" => 400, 
-        "body" => "Unable to create player account. Please contact an admin."
+        "body" => "Unable to create player account."
     );
 }
 

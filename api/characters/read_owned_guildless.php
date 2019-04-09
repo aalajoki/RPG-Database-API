@@ -46,7 +46,7 @@ if ($jwt) {
             http_response_code(200);
             $response = array(
                 "status" => 200, 
-                "body" => "Guildless characters found.",
+                "body" => "Owned guildless characters found.",
                 "data" => $query_results
             );
         }
@@ -54,7 +54,7 @@ if ($jwt) {
             http_response_code(404);
             $response = array(
                 "status" => 404, 
-                "body" => "No guildless characters found."
+                "body" => "No owned guildless characters found."
             );
         }
 

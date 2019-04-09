@@ -1,6 +1,6 @@
 USE roleplay_db;
 
--- Default system data
+-- Default system data. MANDATORY
 INSERT INTO Character_Class (class)  
 VALUES 
 ("Warrior"), 
@@ -29,7 +29,7 @@ VALUES
 
 
 
--- Player data - requires 3 players to be created first using the signup form in index.html
+-- Player data - requires at least 3 players existing in the database
 INSERT INTO Player_Character (player_id, name, char_class, char_race, level)  
 VALUES 
 (1, "Rob Johnson", 1, 1, 21), 

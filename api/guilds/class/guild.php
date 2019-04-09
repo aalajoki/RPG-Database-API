@@ -163,10 +163,11 @@ class Guild
         $statement->bindParam(':description', $this->description, PDO::PARAM_STR);
         $statement->bindParam(':guild_id', $guild_id, PDO::PARAM_INT);
 
-        // Check if the name is already in use
-        $this->UniqueExists("name");
+        // Get current name and if the given new name is different:
+            // Check if the name is already in use
+            // $this->UniqueExists("name");
         
-        if($statement->execute()){
+        if ($statement->execute()) {
             return true;
         }
         return false;
@@ -216,14 +217,11 @@ class Guild
         
         $num = $statement->rowCount();
         if ($num > 0){
-            $error = array(
+            http_response_code(409);
+            echo json_encode(array(
                 "status" => 409, 
                 "body" => ucfirst($uniqueProperty) . " is already in use."
-            );
-            http_response_code(409);
-            $json = json_encode($error);
-            echo $json;
-            die();
+            ));
         }
     }
 }

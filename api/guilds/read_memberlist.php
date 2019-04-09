@@ -25,12 +25,11 @@ else {
     $results = $guild->ReadMembers($id);
 
     if (!$results) {
-        $error = array(
+        http_response_code(404);
+        echo json_encode(array(
             "status" => 404, 
             "body" => "No guilds found with the chosen ID $id"
-        );
-        http_response_code(404);
-        $json = json_encode($error);
+        ));
     }
     else {
         http_response_code(200);

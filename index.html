@@ -152,7 +152,6 @@ $(document).ready(function()
     $(document).on('submit', '#sign_up_form', function()
     {
         var form_data = JSON.stringify($(this).serializeObject());
-        
         BasicAjaxRequest("api/players/signup.php", form_data);
         return false;
     });
@@ -162,7 +161,7 @@ $(document).ready(function()
     $(document).on('submit', '#create_character_form', function()
     {
         var form_data = SerializeAuthenticatedFormData($(this));
-        BasicAjaxRequest("api/characters/create_character.php", form_data);
+        BasicAjaxRequest("api/characters/create.php", form_data);
         return false;
     });
     
@@ -171,7 +170,7 @@ $(document).ready(function()
     $(document).on('submit', '#create_guild_form', function()
     {
         var form_data = SerializeAuthenticatedFormData($(this));
-        BasicAjaxRequest("api/guilds/create_guild.php", form_data);
+        BasicAjaxRequest("api/guilds/create.php", form_data);
         return false;
     });
     
@@ -180,7 +179,7 @@ $(document).ready(function()
     $(document).on('submit', '#edit_guild_form', function()
     {
         var form_data = SerializeAuthenticatedFormData($(this));
-        BasicAjaxRequest("api/guilds/edit_guild.php", form_data);
+        BasicAjaxRequest("api/guilds/edit.php", form_data);
         return false;
     });
 
@@ -410,7 +409,7 @@ $(document).ready(function()
             
             var jwt = $.cookie("jwt");
             
-            $.post("api/characters/read_owned_characters.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+            $.post("api/characters/read_owned.php", JSON.stringify({ jwt:jwt })).done(function(result) {
                 $('#content').append("<h1>Your characters</h1><table>");
                 $('#content').append("<tr>");
                     $('#content').append("<td>ID</td>");
@@ -456,7 +455,7 @@ $(document).ready(function()
         // If the user is logged in, search and show the user's guilds
         if ($.cookie('jwt')) {
             var jwt = $.cookie("jwt");
-            $.post("api/guilds/read_owned_guilds.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+            $.post("api/guilds/read_owned.php", JSON.stringify({ jwt:jwt })).done(function(result) {
                 
                 $('#content').append("<h1>Guilds your characters own</h1><table>");
                 $('#content').append("<tr>");

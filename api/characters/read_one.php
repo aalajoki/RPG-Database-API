@@ -13,12 +13,11 @@ require_once '../config/database.php';
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if ($id == FALSE || $id == NULL) {
-    $error = array(
-        "status" => 400, 
-        "body" => "Invalid request. Please ensure that the guild ID is correct."
-    );
     http_response_code(400);
-    $json = json_encode($error);
+    echo json_encode(array(
+        "status" => 400,
+        "body" => "Invalid request. Please ensure that the guild ID is correct."
+    ));
 }
 else {
     $statement = $pdo->prepare(
@@ -37,16 +36,18 @@ else {
 
 
     if (!$results) {
-        $error = array(
-            "status" => 404, 
-            "body" => "No characters found with the chosen ID $id"
-        );
         http_response_code(404);
-        $json = json_encode($error);
+        echo json_encode(array(
+            "status" => 404,
+            "body" => "No characters found with the chosen ID $id"
+        ));
     }
     else {
-        $json = json_encode($results);
+        http_response_code(200);
+        echo json_encode(array(
+            "status" => 200,
+            "body" => "Character found.",
+            "data" => $results
+        ));
     }
 }
-echo $json;
-die();
