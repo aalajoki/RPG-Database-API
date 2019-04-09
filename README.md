@@ -3,7 +3,7 @@ A simple REST API with CRUD functionality, written in PHP. Work in progress.
 
 Users are able to create accounts and authenticate using JSON Web Tokens and manage their characters and guilds.
 
-You may use [Postman](https://www.getpostman.com/) or the included index.html for testing. Be sure to create the database and insert the default system data beforehand, these can be found in the "roleplay_db.sql" and "insert_testing_data.sql" files in the "sql" folder.
+You may use [Postman](https://www.getpostman.com/) or the included index.html for testing. Be sure to create the database and insert the default system data beforehand, these can be found in the "roleplay_db.sql" and "insert_testing_data.sql" files in the "sql" folder. For configuring the database connection, see "database.php" in the "api/config" folder.
 
 Documentation containing the currently implemented endpoints and usage examples can be found [here](https://docs.google.com/document/d/1xvSvLrGeJU_VLeBW7nV-gzn-9oFkOdI6aPDLhsmqhvw/edit?usp=sharing)
 
