@@ -1,11 +1,11 @@
 <?php
-// show error reporting
+// Show error reporting
 error_reporting(E_ALL);
  
-// set your default time-zone
+// Set your default time-zone
 date_default_timezone_set('Asia/Manila');
  
-// variables used for jwt
+// Variables used for JWT
 $key = "example_key";
 $iss = "http://example.org";
 $aud = "http://example.com";

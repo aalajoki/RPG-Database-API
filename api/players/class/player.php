@@ -1,7 +1,6 @@
 <?php
 class Player 
 {
- 
     // Database connection
     private $conn;
     
@@ -12,6 +11,7 @@ class Player
     public $email;
     public $password;
  
+    // Constructor with setting the database connection
     public function __construct($db)
     {
         $this->conn = $db;
@@ -32,6 +32,7 @@ class Player
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
 
+        // Bind parameters into the prepared statement
         $statement->bindParam(':username', $this->username, PDO::PARAM_STR);
         $statement->bindParam(':email', $this->email, PDO::PARAM_STR);
 
@@ -58,11 +59,15 @@ class Player
             WHERE $uniqueProperty = ?"
         );
         
+        // Remove HTML
         $this->$uniqueProperty = htmlspecialchars(strip_tags($this->$uniqueProperty));
         
+        // Bind parameters into the prepared statement
         $statement->bindParam(1, $this->$uniqueProperty, PDO::PARAM_STR);
+        
         $statement->execute();
         
+        // If results are found, the unique property is already in use
         $num = $statement->rowCount();
         if ($num > 0){
             $error = array(
@@ -91,12 +96,15 @@ class Player
         // Remove any HTML
         $this->email = htmlspecialchars(strip_tags($this->email));
         
+        // Bind parameters
         $statement->bindParam(1, $this->email, PDO::PARAM_STR);
+        
         $statement->execute();
 
+        // Email exists if there are results to the query
         $num = $statement->rowCount();
         if ($num > 0){
-            // If email exists, get the missing data
+            // If email exists, get the rest of the account data
             $row = $statement->fetch(PDO::FETCH_ASSOC);
             $this->id = $row['id'];
             $this->username = $row['username'];

@@ -1,5 +1,5 @@
 <?php
-
+// CORS headers and caching
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
@@ -7,18 +7,21 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
  
-
+// For JWT configuration
 include_once '../config/core.php';
 
+// JWT encoding/decoding library
 include_once '../libs/php-jwt-master/src/BeforeValidException.php';
 include_once '../libs/php-jwt-master/src/ExpiredException.php';
 include_once '../libs/php-jwt-master/src/SignatureInvalidException.php';
 include_once '../libs/php-jwt-master/src/JWT.php';
 use \Firebase\JWT\JWT;
 
+// Database connection and the required class
 require_once '../config/database.php';
 require_once 'class/character.php';
 
+// Creating a player object with the database connection
 $character = new Character($pdo);
 
 // Get data from the request
@@ -29,37 +32,10 @@ $jwt = isset($data->jwt) ? $data->jwt : "";
  
 
 if ($jwt) {
-    // If JWT is not empty
+    // JWT is not empty
     try {
+        // Attempt to decode
         $decoded = JWT::decode($jwt, $key, array('HS256'));
-        
-        $id = $decoded->data->id;
-        
-        try {
-            $query_results = $character->ReadOwnedGuildless($id);
-        }
-        catch (Exception $e) {
-            echo $e;
-        }
-
-        if ($query_results) {
-            http_response_code(200);
-            $response = array(
-                "status" => 200, 
-                "body" => "Owned guildless characters found.",
-                "data" => $query_results
-            );
-        }
-        else {
-            http_response_code(404);
-            $response = array(
-                "status" => 404, 
-                "body" => "No owned guildless characters found."
-            );
-        }
-
-        $json = json_encode($response);
-        echo $json;
     }
     // JWT is invalid
     catch (Exception $e) {
@@ -69,10 +45,33 @@ if ($jwt) {
             "body" => "Access denied. Token is invalid.",
             //"error" => $e->getMessage()
         ));
+        die();
+    }
+    
+    // Get ID of the authenticated player from the JWT    
+    $id = $decoded->data->id;
+
+    // Get guildless characters owned by the authenticated player
+    $query_results = $character->ReadOwnedGuildless($id);
+
+    if ($query_results) {
+        http_response_code(200);
+        echo json_encode(array(
+            "status" => 200, 
+            "body" => "Owned guildless characters found.",
+            "data" => $query_results
+        ));
+    }
+    else {
+        http_response_code(404);
+        echo json_encode(array(
+            "status" => 404, 
+            "body" => "No owned guildless characters found."
+        ));
     }
 }
-// If JWT is empty
 else {
+    // JWT is empty
     http_response_code(401);
     echo json_encode(array(
             "status" => 401,

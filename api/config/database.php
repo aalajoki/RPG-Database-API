@@ -17,13 +17,11 @@ try {
 } 
 catch (\PDOException $e) {
     //throw new \PDOException($e->getMessage(), (int)$e->getCode());
-    $error = array(
+    
+    http_response_code(500);
+    echo json_encode(array(
         "status" => 500, 
         "body" => "Unable to connect to the database."
-    );
-    http_response_code(500);
-    $json = json_encode($error);
-    
-    echo $json;
+    ));
     die();
 }

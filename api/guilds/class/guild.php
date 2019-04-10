@@ -1,17 +1,18 @@
 <?php
 class Guild 
 {
- 
     // Database connection
     private $conn;
     
     private $table_name = "guild";
  
+    // Data fields
     public $id;
     public $name;
     public $guild_type;
     public $description;
  
+    // Constructor
     public function __construct($db)
     {
         $this->conn = $db;
@@ -112,18 +113,19 @@ class Guild
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->description = htmlspecialchars(strip_tags($this->description));
 
+        // Bind parameters into the prepared statement
         $statement->bindParam(':name', $this->name, PDO::PARAM_STR);
         $statement->bindParam(':guild_type', $this->guild_type, PDO::PARAM_INT);
         $statement->bindParam(':description', $this->description, PDO::PARAM_STR);
 
-        // Check if the name is already in use
+        // Check if the name is already in use as it should be unique
         $this->UniqueExists("name");
         
         if ($statement->execute()) {
             // ID of the created guild
             $guild_id = $this->conn->lastInsertId();
             
-            // Guild has been created: add GM as the first member
+            // Guild has been created: add the chosen guild master as the first member
             $statement = $this->conn->prepare(
                 "INSERT INTO guild_membership
                  SET
@@ -131,6 +133,7 @@ class Guild
                  char_id = :char_id,
                  char_rank = 5"
             );
+            // Bind parameters into the prepared statement
             $statement->bindParam(':guild_id', $guild_id, PDO::PARAM_INT);
             $statement->bindParam(':char_id', $gm_id, PDO::PARAM_INT);
             $statement->execute();
@@ -142,7 +145,7 @@ class Guild
     
     
     
-    // Edit guild's info
+    // Update a guild's info
     function Edit($guild_id)
     {
         $statement = $this->conn->prepare(
@@ -158,6 +161,7 @@ class Guild
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->description = htmlspecialchars(strip_tags($this->description));
 
+        // Bind parameters into the prepared statement
         $statement->bindParam(':name', $this->name, PDO::PARAM_STR);
         $statement->bindParam(':guild_type', $this->guild_type, PDO::PARAM_INT);
         $statement->bindParam(':description', $this->description, PDO::PARAM_STR);
@@ -187,10 +191,12 @@ class Guild
             AND b.player_id = :player_id"
         );
         
+        // Bind parameters into the prepared statement
         $statement->bindParam(':guild_id', $guild_id, PDO::PARAM_INT);
         $statement->bindParam(':player_id', $player_id, PDO::PARAM_INT);
         $statement->execute();
         
+        // Non-empty results mean that the player owns the guild
         $rowCount = $statement->rowCount();
         if ($rowCount > 0){
             return true;

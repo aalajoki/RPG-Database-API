@@ -1,5 +1,5 @@
 <?php
-
+// CORS headers and caching
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET");
@@ -7,11 +7,14 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header('Cache-Control: max-age=3600');
 
+// Database connection and required class
 require_once '../config/database.php'; 
 require_once 'class/guild.php';
 
+// Create a guild object with the required database connection
 $guild = new Guild($pdo);
 
+// Get ID from query string
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if ($id == FALSE || $id == NULL) {
@@ -22,6 +25,7 @@ if ($id == FALSE || $id == NULL) {
     ));
 }
 else {
+    // Search for a guild with the ID parameter, returns a boolean True on success
     $results = $guild->ReadOne($id);
 
     if (!$results) {
