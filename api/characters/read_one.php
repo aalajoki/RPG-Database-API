@@ -17,7 +17,7 @@ if ($id == FALSE || $id == NULL) {
     http_response_code(400);
     echo json_encode(array(
         "status" => 400,
-        "body" => "Invalid request. Please ensure that the guild ID is correct."
+        "body" => "Invalid request. Please ensure that the character ID is correct."
     ));
 }
 else {
